@@ -138,15 +138,31 @@ const shuffle = () => { // 76
 }
 
 const deleteSong = (id) => { // 81
-  userData.songs = userData?.songs.filter((song) => song.id !== id) // 82
-  renderSongs(userData?.songs);
-  highlightCurrentSong();
-  setPlayButtonAccessibleText(); // 83
   if (userData?.currentSong?.id === id){ // 84
     userData.currentSong = null; 
     userData.songCurrentTime = 0; 
     pauseSong();
     setPlayerDisplay(); // 85
+  }
+
+  userData.songs = userData?.songs.filter((song) => song.id !== id) // 82
+  renderSongs(userData?.songs);
+  highlightCurrentSong();
+  setPlayButtonAccessibleText(); // 83
+
+  if (userData?.songs.length === 0){ // 87
+    const resetButton = document.createElement("button"); // 88
+    const resetText = document.createTextNode("Reset Playlist"); // 89
+    resetButton.id = "reset"; // 90
+    resetButton.ariaLabel = "Reset playlist"; // 90
+    resetButton.appendChild(resetText); // 91
+    playlistSongs.appendChild(resetButton); // 91
+    resetButton.addEventListener("click", () => {
+      userData.songs = [...allSongs]; // 93
+      renderSongs(sortSongs()); // 94
+      setPlayButtonAccessibleText(); // 94
+      resetButton.remove(); // 94
+    }); // 92
   }
 }
 
@@ -211,6 +227,21 @@ nextButton.addEventListener("click", playNextSong); // 56
 previousButton.addEventListener("click", playPreviousSong); // 60
 
 shuffleButton.addEventListener("click", shuffle); // 80
+
+audio.addEventListener("ended", () => {
+  const currentSongIndex = getCurrentSongIndex(); // 96
+  const nextSongExists = userData.songs.length -1 > currentSongIndex ? true : false; // 96
+  if (nextSongExists) { // 97
+    playNextSong(); 
+  } else {
+    userData.currentSong = null; // 98
+    userData.songCurrentTime = 0; // 98
+    pauseSong();
+    setPlayerDisplay();
+    highlightCurrentSong();
+    setPlayButtonAccessibleText(); // 99
+  }
+}); // 95
 
 
 
